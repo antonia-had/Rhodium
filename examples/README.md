@@ -6,3 +6,4 @@ these folders.  View the associated `README.md` files for details.
 * [Basic](Basic) - Introductory examples
 * [Languages](Languages) - Integrating Models Written in Other Programming Languages
 * [Eijgenraam](Eijgenraam) - Real-world example - Dike heightening for flood risk management
+* [Fish game](Fish_game) - Simple case study of managing a two-species fishery through harvest
