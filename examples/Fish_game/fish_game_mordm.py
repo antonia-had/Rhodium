@@ -172,6 +172,7 @@ output = optimize(model, "NSGAII", 1000)
 SOWs = sample_lhs(model, 1000)
 policy = output.find_max("NPV")
 results = evaluate(model, update(SOWs, policy))
+
 classification = results.apply("'Survival' if PredatorExtinction < 1 else 'Extinction'")
 p = Prim(results, classification, include=model.uncertainties.keys(), coi="Survival")
 box = p.find_box()
