@@ -10,9 +10,6 @@ N = 100 # Number of realizations of environmental stochasticity
 
 tSteps = 100 # no. of timesteps to run the fish game on
 
-nObjs = 4 # no. of objectives in output
-nCnstr = 1 # no. of objectives in output
-
 # Define problem to be solved
 def fish_game(vars, # contains all C, R, W for RBF policy
               a = 0.005, # rate at which the prey is available to the predator
@@ -43,10 +40,6 @@ def fish_game(vars, # contains all C, R, W for RBF policy
     NPV = np.zeros(N)
     cons_low_harv = np.zeros(N)
     harv_1st_pc = np.zeros(N)    
-    
-    # Create arrays to store objectives and constraints
-    objs = [0.0]*nObjs
-    cnstr = [0.0]*nCnstr
     
     # Create array with environmental stochasticity for prey
     epsilon_prey = np.random.normal(0.0, sigmaX, N)
@@ -84,16 +77,12 @@ def fish_game(vars, # contains all C, R, W for RBF policy
         else:
             cons_low_harv[i] = 0
         harv_1st_pc[i] = np.percentile(harvest[i,:],1)
-
-    # Calculate objectives across N realizations
-    objs[0] = -np.mean(NPV) # Mean NPV for all realizations
-    objs[1] = np.mean((K-prey)/K) # Mean prey deficit
-    objs[2] = np.mean(cons_low_harv) # Mean worst case of consecutive low harvest across realizations
-    objs[3] = -np.mean(harv_1st_pc) # 5th percentile of all harvests
-
-    cnstr[0] = np.mean((predator < 1).sum(axis=1)) # Mean number of predator extinction days per realization
     
-    return objs,cnstr
+    return (np.mean(NPV), # Mean NPV for all realizations
+            np.mean((K-prey)/K), # Mean prey deficit
+            np.mean(cons_low_harv), # Mean worst case of consecutive low harvest across realizations
+            np.mean(harv_1st_pc), # 5th percentile of all harvests
+            np.mean((predator < 1).sum(axis=1))) # Mean number of predator extinction days per realization
 
 # Calculate outputs (u) corresponding to each sample of inputs
 # u is a 2-D matrix with nOut columns (1 for each output)
@@ -144,7 +133,7 @@ def hrvSTR(Inputs, vars, input_ranges, output_ranges):
 
 # =============================================================================
 # Implementation in Rhodium
- =============================================================================
+# =============================================================================
 
 model = Model(fish_game)
 
@@ -158,3 +147,11 @@ model.parameters = [Parameter("vars"),
                     Parameter("m"),
                     Parameter("sigmaX"),
                     Parameter("sigmaY")]
+
+model.responses = [Response("NPV", Response.MAXIMIZE),
+                   Response("PreyDeficit", Response.MINIMIZE),
+                   Response("ConsLowHarvest", Response.MINIMIZE),
+                   Response("WorstHarvest", Response.MAXIMIZE),
+                   Response("PredatorExtinction", Response.INFO)]
+
+model.constraints = [Constraint("PredatorExtinction = 0")]
