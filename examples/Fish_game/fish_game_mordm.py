@@ -60,10 +60,9 @@ def fish_game(vars, # contains all C, R, W for RBF policy
                 x[t+1] = (x[t] + b*x[t]*(1-x[t]/K) - (a*x[t]*y[t])/(np.power(y[t],m)+a*h*x[t]) - z[t]*x[t])* np.exp(epsilon_prey[i]) # Prey growth equation
                 y[t+1] = (y[t] + c*a*x[t]*y[t]/(np.power(y[t],m)+a*h*x[t]) - d*y[t]) *np.exp(epsilon_predator[i]) # Predator growth equation
                 if t <= tSteps-1:
-                    if strategy == 'Previous_Prey':
-                        input_ranges = [[0, K]] # Prey pop. range to use for normalization
-                        output_ranges = [[0, 1]] # Range to de-normalize harvest to
-                        z[t+1] = hrvSTR([x[t]], vars, input_ranges, output_ranges)
+                    input_ranges = [[0, K]] # Prey pop. range to use for normalization
+                    output_ranges = [[0, 1]] # Range to de-normalize harvest to
+                    z[t+1] = hrvSTR([x[t]], vars, input_ranges, output_ranges)
             prey[i,t+1] = x[t+1]
             predator[i,t+1] = y[t+1]
             effort[i,t+1] = z[t+1]
@@ -154,4 +153,21 @@ model.responses = [Response("NPV", Response.MAXIMIZE),
                    Response("WorstHarvest", Response.MAXIMIZE),
                    Response("PredatorExtinction", Response.INFO)]
 
-model.constraints = [Constraint("PredatorExtinction = 0")]
+model.constraints = [Constraint("PredatorExtinction < 1")]
+
+model.uncertainties = [UniformUncertainty("a", 0.002, 2),
+                       UniformUncertainty("b", 0.005, 1),
+                       UniformUncertainty("c", 0.2, 1),
+                       UniformUncertainty("d", 0.05, 0.2),
+                       UniformUncertainty("h", 0.001, 1),
+                       UniformUncertainty("K", 100, 5000),
+                       UniformUncertainty("m", 0.1, 1.5),
+                       UniformUncertainty("sigmaX", 0.001, 0.01),
+                       UniformUncertainty("sigmay", 0.001, 0.01)]
+
+model.levers = [RealLever("vars", 0.0, 1.0, length = 6)]
+
+output = optimize(model, "NSGAII", 1000)
+
+SOWs = sample_lhs(model, 4000)
+results = evaluate(model, update(SOWs, policy))
