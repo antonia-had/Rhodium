@@ -178,3 +178,5 @@ p = Prim(results, classification, include=model.uncertainties.keys(), coi="Survi
 box = p.find_box()
 fig = box.show_tradeoff()
 
+c = Cart(results, classification, include=model.uncertainties.keys(), min_samples_leaf=50)
+c.show_tree()
