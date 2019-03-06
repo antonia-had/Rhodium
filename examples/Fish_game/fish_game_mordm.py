@@ -22,7 +22,6 @@ def fish_game(vars, # contains all C, R, W for RBF policy
               sigmaX = 0.004, # variance of stochastic noise in prey population
               sigmaY = 0.004): # variance of stochastic noise of predator population
 
-
     x = np.zeros(tSteps+1) # Create prey population array
     y = np.zeros(tSteps+1) # Create predator population array
     z = np.zeros(tSteps+1) # Create harvest array
@@ -172,6 +171,8 @@ output = optimize(model, "NSGAII", 1000)
 SOWs = sample_lhs(model, 1000)
 policy = output.find_max("NPV")
 results = evaluate(model, update(SOWs, policy))
+
+result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
 
 classification = results.apply("'Survival' if PredatorExtinction < 1 else 'Extinction'")
 p = Prim(results, classification, include=model.uncertainties.keys(), coi="Survival")
