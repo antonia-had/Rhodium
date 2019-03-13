@@ -26,6 +26,8 @@ def fish_game(vars, # contains all C, R, W for RBF policy
 
     # Create array to store harvest for all realizations
     harvest = np.zeros([N,tSteps+1])
+    # Create array to store effort for all realizations
+    effort = np.zeros([N,tSteps+1])
     # Create array to store prey for all realizations
     prey = np.zeros([N,tSteps+1])
     # Create array to store predator for all realizations
@@ -47,8 +49,8 @@ def fish_game(vars, # contains all C, R, W for RBF policy
         # Initialize populations and values
         x[0] = prey[i,0] = K
         y[0] = predator[i,0] = 250
-        z[0] = hrvSTR([x[0]], vars, [[0, K]], [[0, 1]])
-        NPVharvest = harvest[i,0] = z[0]*x[0]        
+        z[0] = effort[i,0] = hrvSTR([x[0]], vars, [[0, K]], [[0, 1]])
+        NPVharvest = harvest[i,0] = effort[i,0]*x[0]        
         # Go through all timesteps for prey, predator, and harvest
         for t in range(tSteps):
             if x[t] > 0 and y[t] > 0:
@@ -60,6 +62,7 @@ def fish_game(vars, # contains all C, R, W for RBF policy
                     z[t+1] = hrvSTR([x[t]], vars, input_ranges, output_ranges)
             prey[i,t+1] = x[t+1]
             predator[i,t+1] = y[t+1]
+            effort[i,t+1] = z[t+1]
             harvest[i,t+1] = z[t+1]*x[t+1]
             NPVharvest = NPVharvest + harvest[i,t+1]*(1+0.05)**(-(t+1))
         NPV[i] = NPVharvest
