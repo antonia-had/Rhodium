@@ -2,7 +2,7 @@ import numpy as np
 
 nRBF = 2 # no. of RBFs to use
 nIn = 1 # no. of inputs (depending on selected strategy)
-nOut = 1 # no. of outputs (depending on selected strategy)
+nOut = 2 # no. of outputs (depending on selected strategy)
 
 # Calculate outputs (u) corresponding to each sample of inputs
 # u is a 2-D matrix with nOut columns (1 for each output)

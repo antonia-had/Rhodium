@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from System_formulations.one_harvester import fish_game
+from System_formulations.two_harvesters_coop import fish_game
 from rhodium import * 
 
 
@@ -35,7 +35,7 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 2),
                        UniformUncertainty("sigmaX", 0.001, 0.01),
                        UniformUncertainty("sigmay", 0.001, 0.01)]
 
-model.levers = [RealLever("vars", 0.0, 1.0, length = 6)]
+model.levers = [RealLever("vars", 0.0, 1.0, length = 8)]
 
 output = optimize(model, "NSGAII", 500)
 

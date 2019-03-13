@@ -19,7 +19,6 @@ def fish_game(vars, # contains all C, R, W for RBF policy
               m = 0.7, # predator interference parameter
               sigmaX = 0.004, # variance of stochastic noise in prey population
               sigmaY = 0.004): # variance of stochastic noise of predator population
-
     x = np.zeros(tSteps+1) # Create prey population array
     y = np.zeros(tSteps+1) # Create predator population array
     z_a = np.zeros(tSteps+1) # Create harvest array
@@ -44,13 +43,17 @@ def fish_game(vars, # contains all C, R, W for RBF policy
     
     # Create array with environmental stochasticity for predator
     epsilon_predator = np.random.normal(0.0, sigmaY, N)
+    
+    #Set policy input and output ranges
+    input_ranges = [[0, K]] # Prey pop. range to use for normalization
+    output_ranges = [[0, 1], [0, 1]] # Range to de-normalize harvest to
 
     # Go through N possible realizations
     for i in range(N):
         # Initialize populations and values
         x[0] = prey[i,0] = K
         y[0] = predator[i,0] = 250
-        z_a[0], z_b[0] = hrvSTR([x[0]], vars, [[0, K]], [[0, 1]])
+        z_a[0], z_b[0] = hrvSTR([x[0]], vars, input_ranges, output_ranges)
         NPVharvest_a = harvest_a[i,0] = z_a[0]*x[0]   
         NPVharvest_b = harvest_b[i,0] = z_b[0]*x[0] 
         # Go through all timesteps for prey, predator, and harvest
@@ -59,8 +62,6 @@ def fish_game(vars, # contains all C, R, W for RBF policy
                 x[t+1] = (x[t] + b*x[t]*(1-x[t]/K) - (a*x[t]*y[t])/(np.power(y[t],m)+a*h*x[t]) - z_a[t]*x[t] - (1-z_a[t])*z_b[t]*x[t])* np.exp(epsilon_prey[i]) # Prey growth equation
                 y[t+1] = (y[t] + c*a*x[t]*y[t]/(np.power(y[t],m)+a*h*x[t]) - d*y[t]) *np.exp(epsilon_predator[i]) # Predator growth equation
                 if t <= tSteps-1:
-                    input_ranges = [[0, K]] # Prey pop. range to use for normalization
-                    output_ranges = [[0, 1]] # Range to de-normalize harvest to
                     z_a[t+1], z_b[t+1] = hrvSTR([x[t]], vars, input_ranges, output_ranges)
             prey[i,t+1] = x[t+1]
             predator[i,t+1] = y[t+1]
