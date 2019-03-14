@@ -82,6 +82,6 @@ def fish_game(vars, # contains all C, R, W for RBF policy
     return (np.mean(NPV_a), # Mean NPV for all realizations
             np.mean(NPV_b), # Mean NPV for all realizations
             np.mean((K-prey)/K), # Mean prey deficit
-            np.mean(cons_low_harv), # Mean worst case of consecutive low harvest across realizations
-            np.mean(harv_1st_pc), # 5th percentile of all harvests
+            #np.mean(cons_low_harv), # Mean worst case of consecutive low harvest across realizations
+            #np.mean(harv_1st_pc), # 5th percentile of all harvests
             np.mean((predator < 1).sum(axis=1))) 

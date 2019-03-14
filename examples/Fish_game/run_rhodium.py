@@ -17,10 +17,11 @@ model.parameters = [Parameter("vars"),
                     Parameter("sigmaX"),
                     Parameter("sigmaY")]
 
-model.responses = [Response("NPV", Response.MAXIMIZE),
+model.responses = [Response("NPV_a", Response.MAXIMIZE),
+                   Response("NPV_b", Response.MAXIMIZE),
                    Response("PreyDeficit", Response.MINIMIZE),
-                   Response("ConsLowHarvest", Response.MINIMIZE),
-                   Response("WorstHarvest", Response.MAXIMIZE),
+#                   Response("ConsLowHarvest", Response.MINIMIZE),
+#                   Response("WorstHarvest", Response.MAXIMIZE),
                    Response("PredatorExtinction", Response.INFO)]
 
 model.constraints = [Constraint("PredatorExtinction < 1")]
@@ -38,6 +39,8 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 2),
 model.levers = [RealLever("vars", 0.0, 1.0, length = 8)]
 
 output = optimize(model, "NSGAII", 500)
+
+fig = parallel_coordinates(model, output, colormap="Blues", target="top")
 
 #SOWs = sample_lhs(model, 1000)
 #policy = output.find_max("NPV")
