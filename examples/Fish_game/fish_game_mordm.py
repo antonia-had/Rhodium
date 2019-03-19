@@ -1,6 +1,8 @@
 import numpy as np
 import itertools
 from rhodium import * 
+from j3 import J3
+
 
 nRBF = 2 # no. of RBFs to use
 nIn = 1 # no. of inputs (depending on selected strategy)
@@ -169,17 +171,23 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 2),
 model.levers = [RealLever("vars", 0.0, 1.0, length = 6)]
 
 output = optimize(model, "NSGAII", 1000)
+#fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV", target="top")
 
-SOWs = sample_lhs(model, 1000)
-policy = output.find_max("NPV")
-results = evaluate(model, update(SOWs, policy))
 
-result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
+#SOWs = sample_lhs(model, 1000)
+#policy = output.find_max("NPV")
+#results = evaluate(model, update(SOWs, policy))
 
-classification = results.apply("'Survival' if PredatorExtinction < 1 else 'Extinction'")
-p = Prim(results, classification, include=model.uncertainties.keys(), coi="Survival")
-box = p.find_box()
-fig = box.show_tradeoff()
+# Visualize using J3
+#J3(output.as_dataframe(list(model.responses.keys())))
+J3(output.as_dataframe(['NPV', 'PreyDeficit', 'ConsLowHarvest', 'WorstHarvest']))
 
-c = Cart(results, classification, include=model.uncertainties.keys(), min_samples_leaf=50)
-c.show_tree()
+#result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
+#
+#classification = results.apply("'Survival' if PredatorExtinction < 1 else 'Extinction'")
+#p = Prim(results, classification, include=model.uncertainties.keys(), coi="Survival")
+#box = p.find_box()
+#fig = box.show_tradeoff()
+#
+#c = Cart(results, classification, include=model.uncertainties.keys(), min_samples_leaf=50)
+#c.show_tree()

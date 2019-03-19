@@ -78,7 +78,7 @@ setup_cache(file="example.cache")
 
 # Optimize the model or get cached results if they exist.  Note that the
 # call to optimize is wrapped in a lambda function to enable lazy evaluation.
-output = cache("output", lambda: optimize(model, "NSGAII", 10000))
+output = cache("output", lambda: optimize(model, "NSGAII", 100))
    
 # Visualize using J3
 J3(output.as_dataframe(list(model.responses.keys())))

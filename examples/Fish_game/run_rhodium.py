@@ -40,7 +40,7 @@ model.levers = [RealLever("vars", 0.0, 1.0, length = 8)]
 
 output = optimize(model, "NSGAII", 500)
 
-fig = parallel_coordinates(model, output, colormap="Blues", target="top")
+fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 
 #SOWs = sample_lhs(model, 1000)
 #policy = output.find_max("NPV")
