@@ -24,7 +24,7 @@ model.responses = [Response("NPV_a", Response.MAXIMIZE),
 #                   Response("WorstHarvest", Response.MAXIMIZE),
                    Response("PredatorExtinction", Response.INFO)]
 
-model.constraints = [Constraint("PredatorExtinction < 1")]
+model.constraints = []#Constraint("PredatorExtinction < 1")]
 
 model.uncertainties = [UniformUncertainty("a", 0.002, 2),
                        UniformUncertainty("b", 0.005, 1),
@@ -38,15 +38,15 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 2),
 
 model.levers = [RealLever("vars", 0.0, 1.0, length = 8)]
 
-output = optimize(model, "NSGAII", 5000)
+output = optimize(model, "NSGAII", 1500)
 
-fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
+#fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 #
-J3(output.as_dataframe(list(model.responses.keys())[:-1]))
+#J3(output.as_dataframe(list(model.responses.keys())[:-1]))
 #
-#SOWs = sample_lhs(model, 1000)
-#policy = output.find_max("NPV")
-#results = evaluate(model, update(SOWs, policy))
+SOWs = sample_lhs(model, 1000)
+policy = output.find_max("NPV")
+results = evaluate(model, update(SOWs, policy))
 ##
 #result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
 #
