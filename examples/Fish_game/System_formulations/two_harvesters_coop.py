@@ -55,18 +55,18 @@ def fish_game(vars, # contains all C, R, W for RBF policy
         y[0] = predator[i,0] = 250
         z_a[0], z_b[0] = hrvSTR([x[0]], vars, input_ranges, output_ranges)
         NPVharvest_a = harvest_a[i,0] = z_a[0]*x[0]   
-        NPVharvest_b = harvest_b[i,0] = z_b[0]*x[0] 
+        NPVharvest_b = harvest_b[i,0] = z_b[0]*y[0] 
         # Go through all timesteps for prey, predator, and harvest
         for t in range(tSteps):
             if x[t] > 0 and y[t] > 0:
-                x[t+1] = (x[t] + b*x[t]*(1-x[t]/K) - (a*x[t]*y[t])/(np.power(y[t],m)+a*h*x[t]) - z_a[t]*x[t] - (1-z_a[t])*z_b[t]*x[t])* np.exp(epsilon_prey[i]) # Prey growth equation
-                y[t+1] = (y[t] + c*a*x[t]*y[t]/(np.power(y[t],m)+a*h*x[t]) - d*y[t]) *np.exp(epsilon_predator[i]) # Predator growth equation
+                x[t+1] = (x[t] + b*x[t]*(1-x[t]/K) - (a*x[t]*y[t])/(np.power(y[t],m)+a*h*x[t]) - z_a[t]*x[t])* np.exp(epsilon_prey[i]) # Prey growth equation
+                y[t+1] = (y[t] + c*a*x[t]*y[t]/(np.power(y[t],m)+a*h*x[t]) - d*y[t] - z_b[t]*y[t]) *np.exp(epsilon_predator[i]) # Predator growth equation
                 if t <= tSteps-1:
                     z_a[t+1], z_b[t+1] = hrvSTR([x[t]], vars, input_ranges, output_ranges)
             prey[i,t+1] = x[t+1]
             predator[i,t+1] = y[t+1]
             harvest_a[i,t+1] = z_a[t+1]*x[t+1]
-            harvest_b[i,t+1] = (1-z_a[t+1])*z_b[t+1]*x[t+1]
+            harvest_b[i,t+1] = z_b[t+1]*y[t+1]
             NPVharvest_a = NPVharvest_a + harvest_a[i,t+1]*(1+0.05)**(-(t+1))
             NPVharvest_b = NPVharvest_b + harvest_b[i,t+1]*(1+0.05)**(-(t+1))
         NPV_a[i] = NPVharvest_a
@@ -84,4 +84,4 @@ def fish_game(vars, # contains all C, R, W for RBF policy
             np.mean((K-prey)/K), # Mean prey deficit
             #np.mean(cons_low_harv), # Mean worst case of consecutive low harvest across realizations
             #np.mean(harv_1st_pc), # 5th percentile of all harvests
-            np.mean((predator < 1).sum(axis=1))) 
+            np.mean((250-predator)/250))#(predator < 1).sum(axis=1))) 

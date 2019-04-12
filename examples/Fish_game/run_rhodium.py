@@ -19,7 +19,7 @@ model.parameters = [Parameter("vars"),
 
 model.responses = [Response("NPV_a", Response.MAXIMIZE),
                    Response("NPV_b", Response.MAXIMIZE),
-                   Response("PreyDeficit", Response.MINIMIZE),
+                   Response("PreyDeficit", Response.INFO),
 #                   Response("ConsLowHarvest", Response.MINIMIZE),
 #                   Response("WorstHarvest", Response.MAXIMIZE),
                    Response("PredatorExtinction", Response.INFO)]
@@ -38,9 +38,9 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 2),
 
 model.levers = [RealLever("vars", 0.0, 1.0, length = 8)]
 
-output = optimize(model, "NSGAII", 1500)
+output = optimize(model, "NSGAII", 750)
 
-#fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
+fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 #
 #J3(output.as_dataframe(list(model.responses.keys())[:-1]))
 #
