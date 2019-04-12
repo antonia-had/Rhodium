@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from System_formulations.two_harvesters_coop import fish_game
+from System_formulations.two_harvesters_intertemporal import fish_game
 from rhodium import * 
 from j3 import J3
 
@@ -36,7 +36,7 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 2),
                        UniformUncertainty("sigmaX", 0.001, 0.01),
                        UniformUncertainty("sigmay", 0.001, 0.01)]
 
-model.levers = [RealLever("vars", 0.0, 1.0, length = 8)]
+model.levers = [RealLever("vars", 0.0, 1.0, length = 200)]
 
 output = optimize(model, "NSGAII", 1500)
 
@@ -45,7 +45,7 @@ fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="
 #J3(output.as_dataframe(list(model.responses.keys())[:-1]))
 #
 SOWs = sample_lhs(model, 1000)
-policy = output.find_max("NPV")
+policy = output.find_max("NPV_a")
 results = evaluate(model, update(SOWs, policy))
 ##
 #result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
