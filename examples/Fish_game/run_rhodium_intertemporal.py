@@ -36,13 +36,13 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 2),
                        UniformUncertainty("sigmaX", 0.001, 0.01),
                        UniformUncertainty("sigmay", 0.001, 0.01)]
 
-model.levers = [RealLever("vars", 0.0, 1.0, length = 200)]
+model.levers = [RealLever("vars", 0.0, 1.0, length = 202)]
 
 output = optimize(model, "NSGAII", 1500)
 
 fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 #
-#J3(output.as_dataframe(list(model.responses.keys())[:-1]))
+J3(output.as_dataframe(list(model.responses.keys())[:-1]))
 #
 SOWs = sample_lhs(model, 1000)
 policy = output.find_max("NPV_a")

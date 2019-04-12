@@ -18,8 +18,8 @@ def fish_game(vars, # contains all C, R, W for RBF policy
               sigmaY = 0.004): # variance of stochastic noise of predator population
     x = np.zeros(tSteps+1) # Create prey population array
     y = np.zeros(tSteps+1) # Create predator population array
-    z_a = vars[:100] # Create harvest array
-    z_b = vars[100:]
+    z_a = vars[:101] # Create harvest array
+    z_b = vars[101:]
 
     # Create array to store harvest for all realizations
     harvest_a = np.zeros([N,tSteps+1])
