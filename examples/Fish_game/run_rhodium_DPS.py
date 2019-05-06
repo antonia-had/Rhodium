@@ -42,7 +42,7 @@ output = optimize(model, "NSGAII", 750)
 
 fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 #
-#J3(output.as_dataframe(list(model.responses.keys())[:-1]))
+J3(output.as_dataframe(list(model.responses.keys())))
 #
 SOWs = sample_lhs(model, 1000)
 policy = output.find_max("NPV_a")

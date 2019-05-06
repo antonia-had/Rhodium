@@ -175,14 +175,14 @@ output = optimize(model, "NSGAII", 1000)
 
 
 #SOWs = sample_lhs(model, 1000)
-#policy = output.find_max("NPV")
+policy = output.find_max("NPV")
 #results = evaluate(model, update(SOWs, policy))
 
 # Visualize using J3
 #J3(output.as_dataframe(list(model.responses.keys())))
 J3(output.as_dataframe(['NPV', 'PreyDeficit', 'ConsLowHarvest', 'WorstHarvest']))
 
-#result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
+result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
 #
 #classification = results.apply("'Survival' if PredatorExtinction < 1 else 'Extinction'")
 #p = Prim(results, classification, include=model.uncertainties.keys(), coi="Survival")
