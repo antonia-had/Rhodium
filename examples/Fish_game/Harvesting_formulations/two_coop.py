@@ -1,13 +1,12 @@
 import numpy as np
 
-nRBF = 2 # no. of RBFs to use
-nIn = 1 # no. of inputs (depending on selected strategy)
-nOut = 2 # no. of outputs (depending on selected strategy)
-
 # Calculate outputs (u) corresponding to each sample of inputs
 # u is a 2-D matrix with nOut columns (1 for each output)
 # and as many rows as there are samples of inputs
 def hrvSTR(Inputs, vars, input_ranges, output_ranges):
+    nRBF = 2 # no. of RBFs to use
+    nIn = len(Inputs) # no. of inputs (depending on selected strategy)
+    nOut = 2 # no. of outputs (depending on selected strategy)
     # Rearrange decision variables into C, R, and W arrays
     # C and R are nIn x nRBF and W is nOut x nRBF
     # Decision variables are arranged in 'vars' as nRBF consecutive
@@ -33,6 +32,7 @@ def hrvSTR(Inputs, vars, input_ranges, output_ranges):
     norm_in = np.zeros(nIn)
     for m in range (nIn):
         norm_in[m] = (Inputs[m]-input_ranges[m][0])/(input_ranges[m][1]-input_ranges[m][0])
+        
     # Create array to store outputs
     u = np.zeros(nOut)
     # Calculate RBFs
