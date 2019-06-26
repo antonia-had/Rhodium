@@ -38,7 +38,7 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 2),
 
 model.levers = [RealLever("vars", 0.0, 1.0, length = 8)]
 
-output = optimize(model, "NSGAII", 750)
+output = optimize(model, "NSGAII", 1000)
 
 fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 #

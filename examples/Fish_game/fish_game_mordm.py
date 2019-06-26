@@ -40,7 +40,8 @@ def fish_game(vars, # contains all C, R, W for RBF policy
     # Create array to store metrics per realization
     NPV = np.zeros(N)
     cons_low_harv = np.zeros(N)
-    harv_1st_pc = np.zeros(N)    
+    harv_1st_pc = np.zeros(N) 
+    variance = np.zeros(N)
     
     # Create array with environmental stochasticity for prey
     epsilon_prey = np.random.normal(0.0, sigmaX, N)
@@ -79,11 +80,13 @@ def fish_game(vars, # contains all C, R, W for RBF policy
         else:
             cons_low_harv[i] = 0
         harv_1st_pc[i] = np.percentile(harvest[i,:],1)
+        variance[i] = np.var(harvest[i,:])
     
     return (np.mean(NPV), # Mean NPV for all realizations
             np.mean((K-prey)/K), # Mean prey deficit
             np.mean(cons_low_harv), # Mean worst case of consecutive low harvest across realizations
             np.mean(harv_1st_pc), # 5th percentile of all harvests
+            np.mean(variance), # Mean variance
             np.mean((predator < 1).sum(axis=1))) # Mean number of predator extinction days per realization
 
 # Calculate outputs (u) corresponding to each sample of inputs
@@ -154,6 +157,7 @@ model.responses = [Response("NPV", Response.MAXIMIZE),
                    Response("PreyDeficit", Response.MINIMIZE),
                    Response("ConsLowHarvest", Response.MINIMIZE),
                    Response("WorstHarvest", Response.MAXIMIZE),
+                   Response("HarvestVaiance", Response.MINIMIZE),
                    Response("PredatorExtinction", Response.INFO)]
 
 model.constraints = [Constraint("PredatorExtinction < 1")]
@@ -170,19 +174,19 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 2),
 
 model.levers = [RealLever("vars", 0.0, 1.0, length = 6)]
 
-output = optimize(model, "NSGAII", 1000)
-#fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV", target="top")
+output = optimize(model, "NSGAII", 5000)
+fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV", target="top")
 
 
 #SOWs = sample_lhs(model, 1000)
-policy = output.find_max("NPV")
+#policy = output.find_max("NPV")
 #results = evaluate(model, update(SOWs, policy))
 
 # Visualize using J3
 #J3(output.as_dataframe(list(model.responses.keys())))
-J3(output.as_dataframe(['NPV', 'PreyDeficit', 'ConsLowHarvest', 'WorstHarvest']))
+#J3(output.as_dataframe(['NPV', 'PreyDeficit', 'ConsLowHarvest', 'WorstHarvest']))
 
-result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
+#result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
 #
 #classification = results.apply("'Survival' if PredatorExtinction < 1 else 'Extinction'")
 #p = Prim(results, classification, include=model.uncertainties.keys(), coi="Survival")
