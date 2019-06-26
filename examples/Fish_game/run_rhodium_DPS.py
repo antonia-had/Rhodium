@@ -1,8 +1,8 @@
 import sys
 sys.path.append('../')
-from System_formulations.two_harvesters_coop import fish_game
+from System_formulations.two_harvesters_coop_noise import fish_game
 from rhodium import * 
-from j3 import J3
+#from j3 import J3
 
 model = Model(fish_game)
 
@@ -38,15 +38,15 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 2),
 
 model.levers = [RealLever("vars", 0.0, 1.0, length = 8)]
 
-output = optimize(model, "NSGAII", 1000)
+output = optimize(model, "NSGAII", 700)
 
 fig = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 #
-J3(output.as_dataframe(list(model.responses.keys())))
+#J3(output.as_dataframe(list(model.responses.keys())))
 #
-SOWs = sample_lhs(model, 1000)
-policy = output.find_max("NPV_a")
-results = evaluate(model, update(SOWs, policy))
+#SOWs = sample_lhs(model, 1000)
+#policy = output.find_max("NPV_a")
+#results = evaluate(model, update(SOWs, policy))
 ##
 #result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
 #
