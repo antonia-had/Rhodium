@@ -81,7 +81,7 @@ def fish_game(vars, # contains all C, R, W for RBF policy
         else:
             cons_low_harv[i] = 0
         harv_1st_pc[i] = np.percentile(harvest_a[i,:],1)
-    
+    print(NPV_a)
     return (np.mean(NPV_a), # Mean NPV for all realizations
             np.mean(NPV_b), # Mean NPV for all realizations
             np.mean((K-prey)/K), # Mean prey deficit
