@@ -2,7 +2,7 @@ import sys
 sys.path.append('../')
 from System_formulations.two_harvesters_coop_noise import fish_game
 from rhodium import * 
-#from j3 import J3
+from j3 import J3
 
 model = Model(fish_game)
 
@@ -40,9 +40,9 @@ model.levers = [RealLever("vars", 0.0, 1.0, length = 12)]
 
 output = optimize(model, "NSGAII", 1000)
 
-fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
+#fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 #
-#J3(output.as_dataframe(list(model.responses.keys())))
+J3(output.as_dataframe(list(model.responses.keys())))
 #
 #SOWs = sample_lhs(model, 1000)
 #policy = output.find_max("NPV_b")
