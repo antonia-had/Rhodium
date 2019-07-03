@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from System_formulations.two_harvesters_coop_noise import fish_game
+from System_formulations.two_harvesters_coop_noise_hrv_data import fish_game
 from rhodium import * 
 from j3 import J3
 import json
@@ -29,7 +29,7 @@ model.constraints = []#Constraint("PredatorExtinction < 1")]
 
 model.uncertainties = [UniformUncertainty("a", 0.002, 0.05),
                        UniformUncertainty("b", 0.01, 1),
-                       UniformUncertainty("c", 0.2, 1),
+                       UniformUncertainty("c", 0.2, 1),  
                        UniformUncertainty("d", 0.05, 0.2),
                        UniformUncertainty("h", 0.01, 1),
                        UniformUncertainty("K", 1000, 4000),
@@ -37,9 +37,10 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 0.05),
                        UniformUncertainty("sigmaX", 0.001, 0.01),
                        UniformUncertainty("sigmay", 0.001, 0.01)]
 
-model.levers = [RealLever("vars", 0.0, 1.0, length = 12)]
+model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
+
 output = optimize(model, "NSGAII", 10000)
-with open("noise.txt", "w") as f:
+with open("harvest_data_predator.txt", "w") as f:
     json.dump(output, f)
 
 fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")

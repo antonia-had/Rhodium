@@ -2,7 +2,8 @@ import sys
 sys.path.append('../')
 from System_formulations.two_harvesters_coop_noise_hrv_data import fish_game
 from rhodium import * 
-#from j3 import J3
+from j3 import J3
+import json
 
 model = Model(fish_game)
 
@@ -38,7 +39,9 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 0.05),
 
 model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 
-output = optimize(model, "NSGAII", 1000)
+output = optimize(model, "NSGAII", 10000)
+with open("harvest_data.txt", "w") as f:
+    json.dump(output, f)
 
 fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 #

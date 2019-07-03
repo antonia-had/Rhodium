@@ -48,7 +48,7 @@ def fish_game(vars, # contains all C, R, W for RBF policy
     sensor_noise_predator = np.exp(np.random.normal(0.0, 0.5, N))
     
     #Set policy input and output ranges
-    input_ranges = [[0, K*sensor_noise_prey.max()], [0, 500*sensor_noise_predator.max()], [0, K], [0, 500]] # Prey pop. range to use for normalization
+    input_ranges = [[0, K*sensor_noise_prey.max()], [0, 500*sensor_noise_predator.max()], [0, 500]] # Prey pop. range to use for normalization
     output_ranges = [[0, 1], [0, 1]] # Range to de-normalize harvest to
 
     # Go through N possible realizations
@@ -56,7 +56,7 @@ def fish_game(vars, # contains all C, R, W for RBF policy
         # Initialize populations and values
         x[0] = prey[i,0] = K
         y[0] = predator[i,0] = 250
-        z_a[0], z_b[0] = hrvSTR([x[0]*sensor_noise_prey[0], y[0]*sensor_noise_predator[0], 0, 0], vars, input_ranges, output_ranges)
+        z_a[0], z_b[0] = hrvSTR([x[0]*sensor_noise_prey[0], y[0]*sensor_noise_predator[0], 0], vars, input_ranges, output_ranges)
         NPVharvest_a = harvest_a[i,0] = z_a[0]*x[0]   
         NPVharvest_b = harvest_b[i,0] = z_b[0]*y[0] 
         # Go through all timesteps for prey, predator, and harvest
@@ -65,7 +65,7 @@ def fish_game(vars, # contains all C, R, W for RBF policy
                 x[t+1] = (x[t] + b*x[t]*(1-x[t]/K) - (a*x[t]*y[t])/(np.power(y[t],m)+a*h*x[t]) - z_a[t]*x[t])* np.exp(epsilon_prey[i]) # Prey growth equation
                 y[t+1] = (y[t] + c*a*x[t]*y[t]/(np.power(y[t],m)+a*h*x[t]) - d*y[t] - z_b[t]*y[t]) *np.exp(epsilon_predator[i]) # Predator growth equation
                 if t <= tSteps-1:
-                    z_a[t+1], z_b[t+1] = hrvSTR([x[t]*sensor_noise_prey[t], y[t]*sensor_noise_predator[t], z_a[t]*x[t], z_b[t]*y[t]], vars, input_ranges, output_ranges)
+                    z_a[t+1], z_b[t+1] = hrvSTR([x[t]*sensor_noise_prey[t], y[t]*sensor_noise_predator[t], z_b[t]*y[t]], vars, input_ranges, output_ranges)
             prey[i,t+1] = x[t+1]
             predator[i,t+1] = y[t+1]
             harvest_a[i,t+1] = z_a[t+1]*x[t+1]
