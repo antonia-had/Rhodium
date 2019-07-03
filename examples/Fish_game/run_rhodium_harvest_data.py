@@ -45,9 +45,15 @@ with open("harvest_data.txt", "w") as f:
 
 fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 #
-#J3(output.as_dataframe(list(model.responses.keys())))
+J3(output.as_dataframe(list(model.responses.keys())))
 #
-#SOWs = sample_lhs(model, 1000)
+SOWs = sample_lhs(model, 1000)
+
+if __name__ == "__main__":
+    # Use a Process Pool evaluator, which will work on Python 3+\n",
+    with ProcessPoolEvaluator(2) as evaluator:
+            RhodiumConfig.default_evaluator = evaluator
+            reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
 #policy = output.find_max("NPV_b")
 #results = evaluate(model, update(SOWs, policy))
 #fig2 = parallel_coordinates(model, results, colormap="Blues", c= "NPV_a", target="top")
