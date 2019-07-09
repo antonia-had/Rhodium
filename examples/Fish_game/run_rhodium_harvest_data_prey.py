@@ -43,9 +43,9 @@ output = optimize(model, "NSGAII", 10000)
 with open("harvest_data_prey.txt", "w") as f:
     json.dump(output, f)
 
-#fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
+fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 #
-#J3(output.as_dataframe(list(model.responses.keys())))
+J3(output.as_dataframe(list(model.responses.keys())))
 #
 #SOWs = sample_lhs(model, 1000)
 #policy = output.find_max("NPV_b")
