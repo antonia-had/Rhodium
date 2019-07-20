@@ -1,6 +1,6 @@
 import sys
-sys.path.append('../')
-from System_formulations.two_harvesters_coop_noise_hrv_data import fish_game
+sys.path.append('../../')
+from System_behavior_formulations.two_harvesters_coop_noise_hrv_data import fish_game
 from rhodium import * 
 from j3 import J3
 import json
@@ -54,6 +54,7 @@ if __name__ == "__main__":
     with ProcessPoolEvaluator(2) as evaluator:
             RhodiumConfig.default_evaluator = evaluator
             reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
+            
 #policy = output.find_max("NPV_b")
 #results = evaluate(model, update(SOWs, policy))
 #fig2 = parallel_coordinates(model, results, colormap="Blues", c= "NPV_a", target="top")
