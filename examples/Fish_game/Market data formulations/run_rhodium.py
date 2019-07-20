@@ -1,6 +1,6 @@
 import sys
-sys.path.append('../../')
-from System_behavior_formulations.two_harvesters_coop_noise_hrv_data import fish_game
+sys.path.append('../')
+from System_behavior_formulations.two_harvesters_two_policies import fish_game
 from rhodium import * 
 from j3 import J3
 import json
@@ -43,17 +43,17 @@ output = optimize(model, "NSGAII", 10000)
 with open("harvest_data.txt", "w") as f:
     json.dump(output, f)
 
-fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
+#fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
+##
+#J3(output.as_dataframe(list(model.responses.keys())))
+##
+#SOWs = sample_lhs(model, 1000)
 #
-J3(output.as_dataframe(list(model.responses.keys())))
-#
-SOWs = sample_lhs(model, 1000)
-
-if __name__ == "__main__":
-    # Use a Process Pool evaluator, which will work on Python 3+\n",
-    with ProcessPoolEvaluator(2) as evaluator:
-            RhodiumConfig.default_evaluator = evaluator
-            reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
+#if __name__ == "__main__":
+#    # Use a Process Pool evaluator, which will work on Python 3+\n",
+#    with ProcessPoolEvaluator(2) as evaluator:
+#            RhodiumConfig.default_evaluator = evaluator
+#            reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
             
 #policy = output.find_max("NPV_b")
 #results = evaluate(model, update(SOWs, policy))

@@ -5,8 +5,8 @@ import numpy as np
 # and as many rows as there are samples of inputs
 def hrvSTR(Inputs, vars, input_ranges, output_ranges):
     nRBF = 2 # no. of RBFs to use
-    nIn = len(Inputs) # no. of inputs (depending on selected strategy)
-    nOut = 2 # no. of outputs (depending on selected strategy)
+    nIn = len(input_ranges) # no. of inputs (depending on selected strategy)
+    nOut = len(output_ranges) # no. of outputs (depending on selected strategy)
     # Rearrange decision variables into C, R, and W arrays
     # C and R are nIn x nRBF and W is nOut x nRBF
     # Decision variables are arranged in 'vars' as nRBF consecutive
