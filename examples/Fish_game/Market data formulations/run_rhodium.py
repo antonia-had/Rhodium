@@ -44,17 +44,19 @@ with open("harvest_data_shared_info.txt", "w") as f:
     json.dump(output, f)
 
 #fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
-##
-#J3(output.as_dataframe(list(model.responses.keys())))
-##
-#SOWs = sample_lhs(model, 1000)
 #
-#if __name__ == "__main__":
-#    # Use a Process Pool evaluator, which will work on Python 3+\n",
-#    with ProcessPoolEvaluator(2) as evaluator:
-#            RhodiumConfig.default_evaluator = evaluator
-#            reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
-            
+#J3(output.as_dataframe(list(model.responses.keys())))
+#
+SOWs = sample_lhs(model, 1000)
+
+if __name__ == "__main__":
+    # Use a Process Pool evaluator, which will work on Python 3+\n",
+    with ProcessPoolEvaluator(2) as evaluator:
+            RhodiumConfig.default_evaluator = evaluator
+            reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
+with open("harvest_data_shared_info_reevaluation.txt", "w") as f:
+    json.dump(reevaluation, f)      
+         
 #policy = output.find_max("NPV_b")
 #results = evaluate(model, update(SOWs, policy))
 #fig2 = parallel_coordinates(model, results, colormap="Blues", c= "NPV_a", target="top")
