@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from System_behavior_formulations.two_harvesters_two_policies import fish_game
+from System_behavior_formulations.two_harvesters_two_policies_shared_info import fish_game
 from rhodium import * 
 from j3 import J3
 import json
@@ -40,7 +40,7 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 0.05),
 model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 
 output = optimize(model, "NSGAII", 10000)
-with open("harvest_data.txt", "w") as f:
+with open("harvest_data_shared_info.txt", "w") as f:
     json.dump(output, f)
 
 #fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
