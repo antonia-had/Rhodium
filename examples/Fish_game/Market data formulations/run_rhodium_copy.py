@@ -43,7 +43,7 @@ output = optimize(model, "NSGAII", 10000)
 with open("harvest_data.txt", "w") as f:
     json.dump(output, f)
 
-fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
+#fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 ##
 #J3(output.as_dataframe(list(model.responses.keys())))
 ##
