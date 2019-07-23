@@ -54,6 +54,7 @@ if __name__ == "__main__":
     with ProcessPoolEvaluator(2) as evaluator:
             RhodiumConfig.default_evaluator = evaluator
             reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
+
 with open("harvest_data_shared_info_reevaluation.txt", "w") as f:
     json.dump(reevaluation, f)      
          

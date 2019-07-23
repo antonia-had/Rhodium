@@ -39,10 +39,10 @@ def fish_game(vars, # contains all C, R, W for RBF policy
     harv_1st_pc = np.zeros(N)    
     
     # Create array with environmental stochasticity for prey
-    epsilon_prey = np.random.normal(0.0, np.sqrt(sigmaX), N)
+    epsilon_prey = np.random.normal(0.0, sigmaX, N)
     
     # Create array with environmental stochasticity for predator
-    epsilon_predator = np.random.normal(0.0, np.sqrt(sigmaY), N)
+    epsilon_predator = np.random.normal(0.0, sigmaY, N)
     
     #Set policy input and output ranges
     input_ranges = [[0, K],[0, K]] # Prey pop. range to use for normalization
