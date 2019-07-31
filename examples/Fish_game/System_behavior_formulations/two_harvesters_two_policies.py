@@ -68,7 +68,9 @@ def fish_game(vars, # contains all C, R, W for RBF policy
               K = 2000, # prey carrying capacity given its environmental conditions
               m = 0.7, # predator interference parameter
               sigmaX = 0.004, # variance of stochastic noise in prey population
-              sigmaY = 0.004): # variance of stochastic noise of predator population
+              sigmaY = 0.004,
+              preylimit = 1,
+              predatorlimit = 1): # variance of stochastic noise of predator population
     x = np.zeros([N,tSteps]) # Create prey population array
     y = np.zeros([N,tSteps]) # Create predator population array
     z_a = np.zeros(tSteps) # Create harvest array
@@ -90,10 +92,10 @@ def fish_game(vars, # contains all C, R, W for RBF policy
     
     #Set policy input and output ranges
     input_ranges = [[0, K]] # Prey pop. range to use for normalization
-    output_ranges = [[0, 1]] # Range to de-normalize harvest to
+    output_ranges = [[0, preylimit],[0, predatorlimit]] # Range to de-normalize harvest to
     
-    preypolicy = generate_policy(input_ranges, output_ranges, vars[:6])
-    predatorpolicy = generate_policy(input_ranges, output_ranges, vars[6:])
+    preypolicy = generate_policy(input_ranges, [output_ranges[0]], vars[:6])
+    predatorpolicy = generate_policy(input_ranges, [output_ranges[1]], vars[6:])
     
     # Initialize populations and values
     x[:,0] = K

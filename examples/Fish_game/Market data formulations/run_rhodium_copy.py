@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from System_behavior_formulations.two_harvesters_two_policies import fish_game
+from System_behavior_formulations.two_harvesters_two_policies_shared_info import fish_game
 from rhodium import * 
 from j3 import J3
 import json
@@ -39,7 +39,7 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 0.05),
                        UniformUncertainty("sigmaX", 0.001, 0.01),
                        UniformUncertainty("sigmay", 0.001, 0.01)]
 
-model.levers = [RealLever("vars", 0.0, 1.0, length = 12)]
+model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 
 output = optimize(model, "BorgMOEA", 10000, module="platypus.wrappers", epsilons=[1, 1, 0.01, 0.01])
 
