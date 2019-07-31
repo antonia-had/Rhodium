@@ -73,17 +73,8 @@ def fish_game(vars, # contains all C, R, W for RBF policy
             NPVharvest_b = NPVharvest_b + harvest_b[i,t+1]*(1+0.05)**(-(t+1))
         NPV_a[i] = NPVharvest_a
         NPV_b[i] = NPVharvest_b
-        low_hrv = [harvest_a[i,j]<prey[i,j]/20 for j in range(len(harvest_a[i,:]))] # Returns a list of True values when there's harvest below 5%
-        count = [ sum( 1 for _ in group ) for key, group in itertools.groupby( low_hrv ) if key ] # Counts groups of True values in a row
-        if count: # Checks if theres at least one count (if not, np.max won't work on empty list)
-            cons_low_harv[i] = np.max(count)  # Finds the largest number of consecutive low harvests
-        else:
-            cons_low_harv[i] = 0
-        harv_1st_pc[i] = np.percentile(harvest_a[i,:],1)
     
     return (np.mean(NPV_a), # Mean NPV for all realizations
             np.mean(NPV_b), # Mean NPV for all realizations
             np.mean((K-prey)/K).clip(0,1), # Mean prey deficit
-            #np.mean(cons_low_harv), # Mean worst case of consecutive low harvest across realizations
-            #np.mean(harv_1st_pc), # 5th percentile of all harvests
             np.mean((250-predator)/250).clip(0,1))#(predator < 1).sum(axis=1))) 

@@ -4,6 +4,8 @@ from System_behavior_formulations.two_harvesters_two_policies_shared_info import
 from rhodium import * 
 from j3 import J3
 import json
+import numpy as np
+from platypus import wrappers
 
 model = Model(fish_game)
 
@@ -21,9 +23,7 @@ model.parameters = [Parameter("vars"),
 model.responses = [Response("NPV_a", Response.MAXIMIZE),
                    Response("NPV_b", Response.MAXIMIZE),
                    Response("PreyDeficit", Response.MINIMIZE),
-#                   Response("ConsLowHarvest", Response.MINIMIZE),
-#                   Response("WorstHarvest", Response.MAXIMIZE),
-                   Response("PredatorExtinction", Response.MINIMIZE)]
+                   Response("PredatorDeficit", Response.MINIMIZE)]
 
 model.constraints = []#Constraint("PredatorExtinction < 1")]
 
@@ -39,24 +39,58 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 0.05),
 
 model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 
-output = optimize(model, "NSGAII", 2000)
-with open("harvest_data_shared_info.json", "w") as f:
-    json.dump(output, f)
+output = optimize(model, "BorgMOEA", 20000, module="platypus.wrappers", epsilons=[1, 1, 0.0001, 0.0001])
+
 
 #fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
+##
+##J3(output.as_dataframe(list(model.responses.keys())))
+##
+#SOWs = sample_lhs(model, 1000)
 #
-#J3(output.as_dataframe(list(model.responses.keys())))
-#
-SOWs = sample_lhs(model, 1000)
-
-#if __name__ == "__main__":
-#    # Use a Process Pool evaluator, which will work on Python 3+\n",
-#    with ProcessPoolEvaluator(2) as evaluator:
-#            RhodiumConfig.default_evaluator = evaluator
-#            reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
-reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
+##if __name__ == "__main__":
+##    # Use a Process Pool evaluator, which will work on Python 3+\n",
+##    with ProcessPoolEvaluator(2) as evaluator:
+##            RhodiumConfig.default_evaluator = evaluator
+##            reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
+#reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
 #with open("harvest_data_shared_info_reevaluation.txt", "w") as f:
-#    json.dump(reevaluation, f)      
+#    json.dump(reevaluation, f) 
+#
+#def regret(model, results, baseline, percentile=90):
+#    quantiles = []
+#    for response in model.responses:
+#        if response.dir == Response.MINIMIZE or response.dir == Response.MAXIMIZE:
+#            if not baseline[response.name]==0:
+#                values = [abs((result[response.name] - baseline[response.name]) / baseline[response.name]) for result in results]
+#                quantiles.append(np.percentile(values, percentile))
+#            else:
+#                 quantiles.append(0)
+#    return (quantiles)
+#
+#def satisficing(model, results):
+#    percentages = np.zeros(4)
+#    percentages[0] = np.mean([1 if result[model.responses[0].name]>=2500 else 0 for result in results])*100
+#    percentages[1] = np.mean([1 if result[model.responses[1].name]>=250 else 0 for result in results])*100
+#    percentages[2] = np.mean([1 if result[model.responses[2].name]<=0.3 else 0 for result in results])*100
+#    percentages[3] = np.mean([1 if result[model.responses[3].name]<=0.3 else 0 for result in results])*100
+#    return (percentages)
+#
+#regret_metric = DataSet()
+#keys = range(len(output))
+#names = [response.name for response in model.responses]
+#for i in keys:
+#    regret_metric.append(OrderedDict(zip(names, regret(model, reevaluation[i], output[i], percentile=90))))
+#    
+#fig2 = parallel_coordinates(model, regret_metric, colormap="Blues", c= "NPV_a", target="bottom")
+#
+#satisficing_metric = DataSet()
+#keys = range(len(output))
+#names = [response.name for response in model.responses]
+#for i in keys:
+#    satisficing_metric.append(OrderedDict(zip(names, satisficing(model, reevaluation[i]))))
+#    
+#fig3 = parallel_coordinates(model, satisficing_metric, colormap="Blues", c= "NPV_a", target="top")
          
 #policy = output.find_max("NPV_b")
 #results = evaluate(model, update(SOWs, policy))
