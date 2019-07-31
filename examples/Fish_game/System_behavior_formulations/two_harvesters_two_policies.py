@@ -1,12 +1,62 @@
 import numpy as np
-import itertools
-import sys
-sys.path.append('../')
-from Harvesting_policies_formulations.generic import hrvSTR
 
 N = 100 # Number of realizations of environmental stochasticity
-
 tSteps = 100 # no. of timesteps to run the fish game on
+
+def generate_policy(input_ranges, output_ranges, vars):
+    #Generate policy from vars
+    nRBF = 2 # no. of RBFs to use
+    nIn = len(input_ranges) # no. of inputs (depending on selected strategy)
+    nOut = len(output_ranges) # no. of outputs (depending on selected strategy)
+    # Rearrange decision variables into C, R, and W arrays
+    # C and R are nIn x nRBF and W is nOut x nRBF
+    # Decision variables are arranged in 'vars' as nRBF consecutive
+    # sets of {nIn pairs of {C, R} followed by nOut Ws}
+    # E.g. for nRBF = 2, nIn = 3 and nOut = 4:
+    # C, R, C, R, C, R, W, W, W, W, C, R, C, R, C, R, W, W, W, W
+    C = np.zeros([nIn,nRBF])
+    R = np.zeros([nIn,nRBF])
+    W = np.zeros([nOut,nRBF])
+    for n in range(nRBF):
+        for m in range(nIn):
+            C[m,n] = vars[(2*nIn+nOut)*n + 2*m]
+            R[m,n] = vars[(2*nIn+nOut)*n + 2*m + 1]
+        for k in range(nOut):
+            W[k,n] = vars[(2*nIn+nOut)*n + 2*nIn + k]
+    # Normalize weights to sum to 1 across the RBFs (each row of W should sum to 1)
+    totals = np.sum(W,1)
+    for k in range(nOut):
+        if totals[k] > 0:
+            W[k,:] = W[k,:]/totals[k]
+            
+    policy=[input_ranges, output_ranges, nIn, nOut, nRBF, C, R, W]
+    
+    return(policy)
+
+def hrvSTR(Inputs, policy):
+    input_ranges, output_ranges, nIn, nOut, nRBF, C, R, W = policy
+    # Normalize inputs
+    norm_in = np.zeros(nIn)
+    for m in range (nIn):
+        norm_in[m] = (Inputs[m]-input_ranges[m][0])/(input_ranges[m][1]-input_ranges[m][0])
+        
+    # Create array to store outputs
+    u = np.zeros(nOut)
+    # Calculate RBFs
+    for k in range(nOut):
+        for n in range(nRBF):
+            BF = 0
+            for m in range(nIn):
+                if R[m,n] > 10**-6: # set so as to avoid division by 0
+                    BF = BF + ((norm_in[m]-C[m,n])/R[m,n])**2
+                else:
+                    BF = BF + ((norm_in[m]-C[m,n])/(10**-6))**2
+            u[k] = u[k] + W[k,n]*np.exp(-BF)
+    # De-normalize outputs
+    norm_u = np.zeros(nOut)
+    for k in range(nOut):
+        norm_u[k] = output_ranges[k][0] + u[k]*(output_ranges[k][1]-output_ranges[k][0])
+    return norm_u
 
 # Define problem to be solved
 def fish_game(vars, # contains all C, R, W for RBF policy
@@ -41,16 +91,19 @@ def fish_game(vars, # contains all C, R, W for RBF policy
     #Set policy input and output ranges
     input_ranges = [[0, K]] # Prey pop. range to use for normalization
     output_ranges = [[0, 1]] # Range to de-normalize harvest to
+    
+    preypolicy = generate_policy(input_ranges, output_ranges, vars[:6])
+    predatorpolicy = generate_policy(input_ranges, output_ranges, vars[6:])
+    
+    # Initialize populations and values
+    x[:,0] = K
+    y[:,0] = 250
+    harvest_a[:,0] = 0
+    harvest_b[:,0] = 0
 
     # Go through N possible realizations
     for i in range(N):
-        # Initialize populations and values
-        x[i,0] = K
-        y[i,0] = 250
-        z_a[0]=0
-        z_b[0]=0
-        harvest_a[i,0] = z_a[0]*x[i,0]
-        harvest_b[i,0] = z_b[0]*y[i,0]
+        # Initialize harvest NPV
         NPVharvest_a = 0
         NPVharvest_b = 0
         # Go through all timesteps for prey, predator, and harvest
@@ -58,8 +111,8 @@ def fish_game(vars, # contains all C, R, W for RBF policy
             if x[i,t] > 0 and y[i,t] > 0:
                 x[i,t+1] = (x[i,t] + b*x[i,t]*(1-x[i,t]/K) - (a*x[i,t]*y[i,t])/(np.power(y[i,t],m)+a*h*x[i,t]) - z_a[t]*x[i,t])* np.exp(epsilon_prey[i]) # Prey growth equation
                 y[i,t+1] = (y[i,t] + c*a*x[i,t]*y[i,t]/(np.power(y[i,t],m)+a*h*x[i,t]) - d*y[i,t] - z_b[t]*y[i,t]) *np.exp(epsilon_predator[i]) # Predator growth equation
-                z_a[t+1]= hrvSTR([z_a[t]*x[i,t]], vars[:6], input_ranges, output_ranges)
-                z_b[t+1]= hrvSTR([z_b[t]*y[i,t]], vars[6:], input_ranges, output_ranges)
+                z_a[t+1]= hrvSTR([z_a[t]*x[i,t]], preypolicy)
+                z_b[t+1]= hrvSTR([z_b[t]*y[i,t]], predatorpolicy)
             harvest_a[i,t+1] = z_a[t+1]*x[i,t+1]
             harvest_b[i,t+1] = z_b[t+1]*y[i,t+1]
             NPVharvest_a += harvest_a[i,t+1]*(1+0.05)**(-(t+1))
