@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from System_behavior_formulations.two_harvesters_two_policies_shared_info import fish_game
+from System_behavior_formulations.two_harvesters_two_policies_shared_info_threshold import fish_game
 from rhodium import * 
 from j3 import J3
 import json
@@ -42,11 +42,13 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 0.05),
 model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 
 output = optimize(model, "BorgMOEA", 10000, module="platypus.wrappers", epsilons=[1, 1, 0.01, 0.01])
+output.save('sharedinfo_threshold.csv')
 
+#policy = output.find_max("NPV_a")
 
 #fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
 ##
-##J3(output.as_dataframe(list(model.responses.keys())))
+#J3(output.as_dataframe(list(model.responses.keys())))
 ##
 #SOWs = sample_lhs(model, 1000)
 #

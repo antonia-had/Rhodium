@@ -70,7 +70,9 @@ def fish_game(vars, # contains all C, R, W for RBF policy
               sigmaX = 0.004, # variance of stochastic noise in prey population
               sigmaY = 0.004, # variance of stochastic noise of predator population
               preylimit = 1,
-              predatorlimit = 1): 
+              predatorlimit = 1,
+              preypopulationthreshold = 0.5,
+              predatorpopulationthreshold = 0.5):  
     x = np.zeros([N,tSteps]) # Create prey population array
     y = np.zeros([N,tSteps]) # Create predator population array
     z_a = np.zeros(tSteps) # Create harvest array
@@ -113,8 +115,12 @@ def fish_game(vars, # contains all C, R, W for RBF policy
             if x[i,t] > 0 and y[i,t] > 0:
                 x[i,t+1] = (x[i,t] + b*x[i,t]*(1-x[i,t]/K) - (a*x[i,t]*y[i,t])/(np.power(y[i,t],m)+a*h*x[i,t]) - z_a[t]*x[i,t])* np.exp(epsilon_prey[i]) # Prey growth equation
                 y[i,t+1] = (y[i,t] + c*a*x[i,t]*y[i,t]/(np.power(y[i,t],m)+a*h*x[i,t]) - d*y[i,t] - z_b[t]*y[i,t]) *np.exp(epsilon_predator[i]) # Predator growth equation
-                z_a[t+1]= hrvSTR([z_a[t]*x[i,t]], preypolicy)
-                z_b[t+1]= hrvSTR([z_b[t]*y[i,t]], predatorpolicy)
+                if x[i,t] >= K*preypopulationthreshold and y[i,t] >= 250*predatorpopulationthreshold:
+                    z_a[t+1]= hrvSTR([z_a[t]*x[i,t]], preypolicy)
+                    z_b[t+1]= hrvSTR([z_b[t]*y[i,t]], predatorpolicy)
+                else:
+                    z_a[t+1]= 0
+                    z_b[t+1]= 0
             harvest_a[i,t+1] = z_a[t+1]*x[i,t+1]
             harvest_b[i,t+1] = z_b[t+1]*y[i,t+1]
             NPVharvest_a += harvest_a[i,t+1]*(1+0.05)**(-(t+1))
