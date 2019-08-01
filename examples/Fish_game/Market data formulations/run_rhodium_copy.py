@@ -6,6 +6,7 @@ from j3 import J3
 import json
 import numpy as np
 from platypus import wrappers
+import ast
 
 model = Model(fish_game)
 
@@ -41,8 +42,17 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 0.05),
 
 model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 
-output = optimize(model, "BorgMOEA", 10000, module="platypus.wrappers", epsilons=[1, 1, 0.01, 0.01])
+output = optimize(model, "BorgMOEA", 10000, module="platypus.wrappers", epsilons=[10, 10, 0.01, 0.01])
 output.save('sharedinfo_threshold.csv')
+#SOWs = load("SOWS.csv")[1]
+#output_sharedinfo_threshold = load('sharedinfo_threshold.csv')[1]
+#policy_shared = OrderedDict(output_sharedinfo_threshold.find_max("NPV_a"))
+#policy_shared['vars']=ast.literal_eval(policy_shared['vars'])
+#reevaluation_shared = evaluate(model, update(SOWs, policy_shared))
+#reevaluation_shared.save("reevaluation_shared.csv")
+#
+#
+#fig3 = parallel_coordinates(model, reevaluation_shared, colormap="Blues", c= "NPV_a", target="top")
 
 #policy = output.find_max("NPV_a")
 
