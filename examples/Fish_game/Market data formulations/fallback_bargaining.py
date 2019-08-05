@@ -2,60 +2,40 @@ import numpy as np
 import pandas as pd
 
 # load data
-data = np.loadtxt('satisficing_by_utility.csv', delimiter=',', skiprows=1)
+regret = np.loadtxt("sharedinfo_regret.csv", skiprows=1, delimiter=',')
+satisficing = np.loadtxt("sharedinfo_satisficing.csv", skiprows=1, delimiter=',')
+objectives = pd.read_csv('sharedinfo_threshold.csv', header=0,  sep=',', usecols=[1,2,3,4]).values
 
-# solution numbers for indexing
-sol_nums = data[:,0]
+objective_direction = [1,1,-1,-1] # 1 for objectives to be maximimized, -1 for objectives to be minimized
+satisficing_direction = [1,1,1,1]
+regret_direction = [-1,-1,-1,-1]
 
-# sort solutions by satisficing for each utility, largest to smallest
-owasa_sorted = np.argsort(data[:,1])[::-1]
-durham_sorted = np.argsort(data[:,2])[::-1]
-cary_sorted = np.argsort(data[:,3])[::-1]
-raleigh_sorted = np.argsort(data[:,4])[::-1]
+def fallback_bargaining(performance, criteria_direction):
+    totalsolutions = len(performance[:,0])
+    numberofusers = len(criteria_direction)
+    solutions_rankings = np.zeros([totalsolutions, numberofusers])
 
-# rank solutions for each utility
-owasa_ranking = sol_nums[owasa_sorted]
-durham_ranking = sol_nums[durham_sorted]
-cary_ranking = sol_nums[cary_sorted]
-raleigh_ranking = sol_nums[raleigh_sorted]
+    # sort solutions for each user, largest to smallest
+    for u in range(numberofusers):
+        solutions_rankings[:,u] = np.argsort(performance[:,u]*criteria_direction[u])[::-1]
 
-# initialize proposals, OWASA and Cary each have 
-# the first ~50 options of 100% robustness, so add them
-owasa_proposed = owasa_ranking[0:52]
-durham_proposed = np.array([])
-cary_proposed = cary_ranking[0:48]
-raleigh_proposed = np.array([])
-compromise = np.array([])
-
-# add all solutions greater than 99% to proposed
-
-
-i=0
-# perform fallback bargaining
-while len(compromise) <1:
-	# get the ith preference of each utility
-	owasa_proposed = np.append(owasa_proposed, owasa_ranking[i])
-	durham_proposed = np.append(durham_proposed, durham_ranking[i])
-	cary_proposed = np.append(cary_proposed, cary_ranking[i])
-	raleigh_proposed = np.append(raleigh_proposed, raleigh_ranking[i])
-
-	# check to see if there is a common solution across utilities
-	o_d_intersect = np.intersect1d(owasa_proposed, durham_proposed)
-	if len(o_d_intersect) > 0:
-		o_d_c_intersect = np.intersect1d(o_d_intersect, cary_proposed)
-		if len(o_d_c_intersect) > 0:
-			compromise = np.intersect1d(o_d_c_intersect, raleigh_proposed)
-			if len(compromise) > 0:
-				print "Compromise is solution: " + str(int(compromise[0])) +"\n"
-				print "Option number: " + str(i) + "\n"
-	i+=1
-
-print owasa_ranking[33]
-print durham_ranking[33]
-print cary_ranking[33]
-print raleigh_ranking[33]
-
-
-
-
-
+    # initialize proposals and compromise solution array
+    compromise = []
+    proposals = [[] for i in range(numberofusers)]
+    
+    i=0
+    # perform fallback bargaining
+    while len(compromise) <1:
+        for u in range(numberofusers):
+            proposals[u].append(solutions_rankings[i,u])  
+    	# check to see if there is a common solution across users
+        compromise = list(set.intersection(*[set(ranking) for ranking in proposals]))
+        if len(compromise) > 0:
+            print ("Compromise is solution: " + str(int(compromise[0])) +"\n")
+            print ("Option number: " + str(i) + "\n")
+        i+=1
+    return(int(compromise[0]))
+    
+objectivescompromize=fallback_bargaining(objectives, objective_direction)
+satisficingcompromize=fallback_bargaining(satisficing, satisficing_direction)
+regretcompromize=fallback_bargaining(regret, regret_direction)
