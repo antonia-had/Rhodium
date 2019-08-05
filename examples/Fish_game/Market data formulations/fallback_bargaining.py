@@ -37,7 +37,3 @@ def fallback_bargaining(performance, criteria_directions):
             print ("Option number: " + str(i) + "\n")
         i+=1
     return(int(compromise[0]))
-    
-objectivescompromize=fallback_bargaining(objectives, objective_direction)
-satisficingcompromize=fallback_bargaining(satisficing, satisficing_direction)
-regretcompromize=fallback_bargaining(regret, regret_direction)

@@ -85,25 +85,16 @@ for i in keys:
 regret_metric.save("sharedinfo_regret.csv")    
 
 def satisficing(model, results):
-    percentages = np.zeros(8)
+    percentages = np.zeros(4)
     percentages[0] = np.mean([1 if result[model.responses[0].name]>=1200 else 0 for result in results])*100
     percentages[1] = np.mean([1 if result[model.responses[1].name]>=120 else 0 for result in results])*100
     percentages[2] = np.mean([1 if result[model.responses[2].name]<=0.5 else 0 for result in results])*100
     percentages[3] = np.mean([1 if result[model.responses[3].name]<=0.5 else 0 for result in results])*100
-    percentages[4] = np.mean([1 if result[model.responses[0].name]>=1200 and result[model.responses[2].name]<=0.5 else 0 for result in results])*100
-    percentages[5] = np.mean([1 if result[model.responses[1].name]>=120 and result[model.responses[3].name]<=0.5 else 0 for result in results])*100
-    percentages[6] = np.mean([1 if result[model.responses[0].name]>=1200 and result[model.responses[1].name]>=120 else 0 for result in results])*100
-    percentages[7] = np.mean([1 if result[model.responses[0].name]>=1200 and \
-                             result[model.responses[1].name]>=120 and \
-                             result[model.responses[2].name]<=0.5 and \
-                             result[model.responses[3].name]<=0.5 else 0 for result in results])*100
     return (percentages)
 
 satisficing_metric = DataSet()
 keys = range(len(output))
-names = [response.name for response in model.responses]+\
-        ['NPV_a and Prey Def.','NPV_b and Predator Def.',
-         'NPV_a and NPV_b','All criteria']
+names = [response.name for response in model.responses]
 for i in keys:
     satisficing_metric.append(OrderedDict(zip(names, satisficing(model, reevaluation[i]))))
 satisficing_metric.save("sharedinfo_satisficing.csv")
