@@ -42,10 +42,22 @@ model.uncertainties = [UniformUncertainty("a", 0.002, 0.05),
 
 model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 
-output = optimize(model, "BorgMOEA", 10000, module="platypus.wrappers", epsilons=[10, 10, 0.01, 0.01])
-output.save('sharedinfo_threshold.csv')
+#output = optimize(model, "BorgMOEA", 10000, module="platypus.wrappers", epsilons=[10, 10, 0.01, 0.01])
+#output.save('sharedinfo_threshold.csv')
 #SOWs = load("SOWS.csv")[1]
+#
+#if __name__ == "__main__":
+#    # Use a Process Pool evaluator, which will work on Python 3+\n",
+#    with ProcessPoolEvaluator(4) as evaluator:
+#            RhodiumConfig.default_evaluator = evaluator
+#            reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
+#            
+#for i in range(len(reevaluation)):
+#    reevaluation[i].save("./Revaluation/shared_info_threshold_evaluation_"+str(i)+".csv")
+#    
+#    
 #output_sharedinfo_threshold = load('sharedinfo_threshold.csv')[1]
+
 #policy_shared = OrderedDict(output_sharedinfo_threshold.find_max("NPV_a"))
 #policy_shared['vars']=ast.literal_eval(policy_shared['vars'])
 #reevaluation_shared = evaluate(model, update(SOWs, policy_shared))
@@ -81,15 +93,22 @@ output.save('sharedinfo_threshold.csv')
 #            else:
 #                 quantiles.append(0)
 #    return (quantiles)
-#
-#def satisficing(model, results):
-#    percentages = np.zeros(4)
-#    percentages[0] = np.mean([1 if result[model.responses[0].name]>=2500 else 0 for result in results])*100
-#    percentages[1] = np.mean([1 if result[model.responses[1].name]>=250 else 0 for result in results])*100
-#    percentages[2] = np.mean([1 if result[model.responses[2].name]<=0.3 else 0 for result in results])*100
-#    percentages[3] = np.mean([1 if result[model.responses[3].name]<=0.3 else 0 for result in results])*100
-#    return (percentages)
-#
+
+def satisficing(model, results):
+    percentages = np.zeros(8)
+    percentages[0] = np.mean([1 if result[model.responses[0].name]>=1200 else 0 for result in results])*100
+    percentages[1] = np.mean([1 if result[model.responses[1].name]>=120 else 0 for result in results])*100
+    percentages[2] = np.mean([1 if result[model.responses[2].name]<=0.5 else 0 for result in results])*100
+    percentages[3] = np.mean([1 if result[model.responses[3].name]<=0.5 else 0 for result in results])*100
+    percentages[4] = np.mean([1 if result[model.responses[0].name]>=1200 and result[model.responses[2].name]<=0.5 else 0 for result in results])*100
+    percentages[5] = np.mean([1 if result[model.responses[1].name]>=120 and result[model.responses[3].name]<=0.5 else 0 for result in results])*100
+    percentages[6] = np.mean([1 if result[model.responses[0].name]>=1200 and result[model.responses[1].name]>=120 else 0 for result in results])*100
+    percentages[7] = np.mean([1 if result[model.responses[0].name]>=1200 and \
+                             result[model.responses[1].name]>=120 and \
+                             result[model.responses[2].name]<=0.5 and \
+                             result[model.responses[3].name]<=0.5 else 0 for result in results])*100
+    return (percentages)
+
 #regret_metric = DataSet()
 #keys = range(len(output))
 #names = [response.name for response in model.responses]
@@ -97,12 +116,15 @@ output.save('sharedinfo_threshold.csv')
 #    regret_metric.append(OrderedDict(zip(names, regret(model, reevaluation[i], output[i], percentile=90))))
 #    
 #fig2 = parallel_coordinates(model, regret_metric, colormap="Blues", c= "NPV_a", target="bottom")
-#
-#satisficing_metric = DataSet()
-#keys = range(len(output))
-#names = [response.name for response in model.responses]
-#for i in keys:
-#    satisficing_metric.append(OrderedDict(zip(names, satisficing(model, reevaluation[i]))))
+
+satisficing_metric = DataSet()
+keys = range(len(output))
+names = [response.name for response in model.responses]+\
+        ['NPV_a and Prey Def.','NPV_b and Predator Def.',
+         'NPV_a and NPV_b','All criteria']
+for i in keys:
+    satisficing_metric.append(OrderedDict(zip(names, satisficing(model, reevaluation[i]))))
+satisficing_metric.save("sharedinfo_robustness.csv")
 #    
 #fig3 = parallel_coordinates(model, satisficing_metric, colormap="Blues", c= "NPV_a", target="top")
          
