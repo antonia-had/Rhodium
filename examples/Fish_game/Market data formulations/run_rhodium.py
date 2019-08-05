@@ -44,6 +44,7 @@ model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 
 #output = optimize(model, "BorgMOEA", 10000, module="platypus.wrappers", epsilons=[10, 10, 0.01, 0.01])
 #output.save('sharedinfo_threshold.csv')
+#SOWs = sample_lhs(model, 1000)
 #SOWs = load("SOWS.csv")[1]
 #
 #if __name__ == "__main__":
@@ -58,30 +59,6 @@ model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 #    
 #output_sharedinfo_threshold = load('sharedinfo_threshold.csv')[1]
 
-#policy_shared = OrderedDict(output_sharedinfo_threshold.find_max("NPV_a"))
-#policy_shared['vars']=ast.literal_eval(policy_shared['vars'])
-#reevaluation_shared = evaluate(model, update(SOWs, policy_shared))
-#reevaluation_shared.save("reevaluation_shared.csv")
-#
-#
-#fig3 = parallel_coordinates(model, reevaluation_shared, colormap="Blues", c= "NPV_a", target="top")
-
-#policy = output.find_max("NPV_a")
-
-#fig1 = parallel_coordinates(model, output, colormap="Blues", c= "NPV_a", target="top")
-##
-#J3(output.as_dataframe(list(model.responses.keys())))
-##
-#SOWs = sample_lhs(model, 1000)
-#
-##if __name__ == "__main__":
-##    # Use a Process Pool evaluator, which will work on Python 3+\n",
-##    with ProcessPoolEvaluator(2) as evaluator:
-##            RhodiumConfig.default_evaluator = evaluator
-##            reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
-#reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
-#with open("harvest_data_shared_info_reevaluation.txt", "w") as f:
-#    json.dump(reevaluation, f) 
 
 def regret(model, results, baseline, percentile=90):
     quantiles = []
@@ -130,19 +107,3 @@ names = [response.name for response in model.responses]+\
 for i in keys:
     satisficing_metric.append(OrderedDict(zip(names, satisficing(model, reevaluation[i]))))
 satisficing_metric.save("sharedinfo_satisficing.csv")
-#    
-#fig3 = parallel_coordinates(model, satisficing_metric, colormap="Blues", c= "NPV_a", target="top")
-         
-#policy = output.find_max("NPV_b")
-#results = evaluate(model, update(SOWs, policy))
-#fig2 = parallel_coordinates(model, results, colormap="Blues", c= "NPV_a", target="top")
-##
-#result = sa(model, "NPV", policy=policy, method="sobol", nsamples=1000)
-#
-#classification = results.apply("'Survival' if PredatorExtinction < 1 else 'Extinction'")
-#p = Prim(results, classification, include=model.uncertainties.keys(), coi="Survival")
-#box = p.find_box()
-#fig = box.show_tradeoff()
-#
-#c = Cart(results, classification, include=model.uncertainties.keys(), min_samples_leaf=50)
-#c.show_tree()
