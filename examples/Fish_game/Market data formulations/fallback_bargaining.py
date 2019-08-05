@@ -6,18 +6,20 @@ regret = np.loadtxt("sharedinfo_regret.csv", skiprows=1, delimiter=',')
 satisficing = np.loadtxt("sharedinfo_satisficing.csv", skiprows=1, delimiter=',')
 objectives = pd.read_csv('sharedinfo_threshold.csv', header=0,  sep=',', usecols=[1,2,3,4]).values
 
-objective_direction = [1,1,-1,-1] # 1 for objectives to be maximimized, -1 for objectives to be minimized
+# set criteria direction of preference
+# 1 for criteria that are maximimized, -1 for that are minimized
+objective_direction = [1,1,-1,-1] 
 satisficing_direction = [1,1,1,1]
 regret_direction = [-1,-1,-1,-1]
 
-def fallback_bargaining(performance, criteria_direction):
+def fallback_bargaining(performance, criteria_directions):
     totalsolutions = len(performance[:,0])
-    numberofusers = len(criteria_direction)
+    numberofusers = len(criteria_directions)
     solutions_rankings = np.zeros([totalsolutions, numberofusers])
 
     # sort solutions for each user, largest to smallest
     for u in range(numberofusers):
-        solutions_rankings[:,u] = np.argsort(performance[:,u]*criteria_direction[u])[::-1]
+        solutions_rankings[:,u] = np.argsort(performance[:,u]*criteria_directions[u])[::-1]
 
     # initialize proposals and compromise solution array
     compromise = []
