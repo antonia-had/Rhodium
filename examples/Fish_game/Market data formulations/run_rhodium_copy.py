@@ -82,17 +82,30 @@ model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 #reevaluation = [evaluate(model, update(SOWs, policy)) for policy in output]
 #with open("harvest_data_shared_info_reevaluation.txt", "w") as f:
 #    json.dump(reevaluation, f) 
-#
-#def regret(model, results, baseline, percentile=90):
-#    quantiles = []
-#    for response in model.responses:
-#        if response.dir == Response.MINIMIZE or response.dir == Response.MAXIMIZE:
-#            if not baseline[response.name]==0:
-#                values = [abs((result[response.name] - baseline[response.name]) / baseline[response.name]) for result in results]
-#                quantiles.append(np.percentile(values, percentile))
-#            else:
-#                 quantiles.append(0)
-#    return (quantiles)
+
+def regret(model, results, baseline, percentile=90):
+    quantiles = []
+    for response in model.responses:
+        if response.dir == Response.MAXIMIZE:
+            if not baseline[response.name]==0:
+                values = [abs((result[response.name] - baseline[response.name]) / baseline[response.name]) if result[response.name]<baseline[response.name] else 0 for result in results]
+                quantiles.append(np.percentile(values, percentile))
+            else:
+                 quantiles.append(0)
+        if response.dir == Response.MINIMIZE:
+            if not baseline[response.name]==0:
+                values = [abs((result[response.name] - baseline[response.name]) / baseline[response.name]) if result[response.name]>baseline[response.name] else 0 for result in results]
+                quantiles.append(np.percentile(values, percentile))
+            else:
+                 quantiles.append(0)
+    return (quantiles)
+
+regret_metric = DataSet()
+keys = range(len(output))
+names = [response.name for response in model.responses]
+for i in keys:
+    regret_metric.append(OrderedDict(zip(names, regret(model, reevaluation[i], output[i], percentile=90))))
+regret_metric.save("sharedinfo_regret.csv")    
 
 def satisficing(model, results):
     percentages = np.zeros(8)
@@ -109,14 +122,6 @@ def satisficing(model, results):
                              result[model.responses[3].name]<=0.5 else 0 for result in results])*100
     return (percentages)
 
-#regret_metric = DataSet()
-#keys = range(len(output))
-#names = [response.name for response in model.responses]
-#for i in keys:
-#    regret_metric.append(OrderedDict(zip(names, regret(model, reevaluation[i], output[i], percentile=90))))
-#    
-#fig2 = parallel_coordinates(model, regret_metric, colormap="Blues", c= "NPV_a", target="bottom")
-
 satisficing_metric = DataSet()
 keys = range(len(output))
 names = [response.name for response in model.responses]+\
@@ -124,7 +129,7 @@ names = [response.name for response in model.responses]+\
          'NPV_a and NPV_b','All criteria']
 for i in keys:
     satisficing_metric.append(OrderedDict(zip(names, satisficing(model, reevaluation[i]))))
-satisficing_metric.save("sharedinfo_robustness.csv")
+satisficing_metric.save("sharedinfo_satisficing.csv")
 #    
 #fig3 = parallel_coordinates(model, satisficing_metric, colormap="Blues", c= "NPV_a", target="top")
          
