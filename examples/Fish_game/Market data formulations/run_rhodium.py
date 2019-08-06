@@ -45,7 +45,7 @@ model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 #output = optimize(model, "BorgMOEA", 10000, module="platypus.wrappers", epsilons=[10, 10, 0.01, 0.01])
 #output.save('sharedinfo_threshold.csv')
 #SOWs = sample_lhs(model, 1000)
-#SOWs = load("SOWS.csv")[1]
+SOWs = load("SOWS.csv")[1]
 #
 #if __name__ == "__main__":
 #    # Use a Process Pool evaluator, which will work on Python 3+\n",
@@ -57,44 +57,44 @@ model.levers = [RealLever("vars", 0.0, 1.0, length = 20)]
 #    reevaluation[i].save("./Revaluation/shared_info_threshold_evaluation_"+str(i)+".csv")
 #    
 #    
-#output_sharedinfo_threshold = load('sharedinfo_threshold.csv')[1]
+output_sharedinfo_threshold = load('sharedinfo_threshold.csv')[1]
+J3(output_sharedinfo_threshold.as_dataframe(list(model.responses.keys())))
 
-
-def regret(model, results, baseline, percentile=90):
-    quantiles = []
-    for response in model.responses:
-        if response.dir == Response.MAXIMIZE:
-            if not baseline[response.name]==0:
-                values = [abs((result[response.name] - baseline[response.name]) / baseline[response.name]) if result[response.name]<baseline[response.name] else 0 for result in results]
-                quantiles.append(np.percentile(values, percentile))
-            else:
-                 quantiles.append(0)
-        if response.dir == Response.MINIMIZE:
-            if not baseline[response.name]==0:
-                values = [abs((result[response.name] - baseline[response.name]) / baseline[response.name]) if result[response.name]>baseline[response.name] else 0 for result in results]
-                quantiles.append(np.percentile(values, percentile))
-            else:
-                 quantiles.append(0)
-    return (quantiles)
-
-regret_metric = DataSet()
-keys = range(len(output))
-names = [response.name for response in model.responses]
-for i in keys:
-    regret_metric.append(OrderedDict(zip(names, regret(model, reevaluation[i], output[i], percentile=90))))
-regret_metric.save("sharedinfo_regret.csv")    
-
-def satisficing(model, results):
-    percentages = np.zeros(4)
-    percentages[0] = np.mean([1 if result[model.responses[0].name]>=1200 else 0 for result in results])*100
-    percentages[1] = np.mean([1 if result[model.responses[1].name]>=120 else 0 for result in results])*100
-    percentages[2] = np.mean([1 if result[model.responses[2].name]<=0.5 else 0 for result in results])*100
-    percentages[3] = np.mean([1 if result[model.responses[3].name]<=0.5 else 0 for result in results])*100
-    return (percentages)
-
-satisficing_metric = DataSet()
-keys = range(len(output))
-names = [response.name for response in model.responses]
-for i in keys:
-    satisficing_metric.append(OrderedDict(zip(names, satisficing(model, reevaluation[i]))))
-satisficing_metric.save("sharedinfo_satisficing.csv")
+#def regret(model, results, baseline, percentile=90):
+#    quantiles = []
+#    for response in model.responses:
+#        if response.dir == Response.MAXIMIZE:
+#            if not baseline[response.name]==0:
+#                values = [abs((result[response.name] - baseline[response.name]) / baseline[response.name]) if result[response.name]<baseline[response.name] else 0 for result in results]
+#                quantiles.append(np.percentile(values, percentile))
+#            else:
+#                 quantiles.append(0)
+#        if response.dir == Response.MINIMIZE:
+#            if not baseline[response.name]==0:
+#                values = [abs((result[response.name] - baseline[response.name]) / baseline[response.name]) if result[response.name]>baseline[response.name] else 0 for result in results]
+#                quantiles.append(np.percentile(values, percentile))
+#            else:
+#                 quantiles.append(0)
+#    return (quantiles)
+#
+#regret_metric = DataSet()
+#keys = range(len(output))
+#names = [response.name for response in model.responses]
+#for i in keys:
+#    regret_metric.append(OrderedDict(zip(names, regret(model, reevaluation[i], output[i], percentile=90))))
+#regret_metric.save("sharedinfo_regret.csv")    
+#
+#def satisficing(model, results):
+#    percentages = np.zeros(4)
+#    percentages[0] = np.mean([1 if result[model.responses[0].name]>=1200 else 0 for result in results])*100
+#    percentages[1] = np.mean([1 if result[model.responses[1].name]>=120 else 0 for result in results])*100
+#    percentages[2] = np.mean([1 if result[model.responses[2].name]<=0.5 else 0 for result in results])*100
+#    percentages[3] = np.mean([1 if result[model.responses[3].name]<=0.5 else 0 for result in results])*100
+#    return (percentages)
+#
+#satisficing_metric = DataSet()
+#keys = range(len(output))
+#names = [response.name for response in model.responses]
+#for i in keys:
+#    satisficing_metric.append(OrderedDict(zip(names, satisficing(model, reevaluation[i]))))
+#satisficing_metric.save("sharedinfo_satisficing.csv")

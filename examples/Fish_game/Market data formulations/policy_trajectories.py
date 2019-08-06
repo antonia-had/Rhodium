@@ -85,6 +85,10 @@ for l in range(len(solutions_to_highlight)):
         maxpreyharvest=max(systemseries[6])
     if max(systemseries[7])>maxpredatorharvest:
         maxpredatorharvest=max(systemseries[7])
+    plt.setp(ax1.spines.values(), color=colors[l])
+    plt.setp([ax1.get_xticklines(), ax1.get_yticklines()], color=colors[l])
+    plt.setp(ax2.spines.values(), color=colors[l])
+    plt.setp([ax2.get_xticklines(), ax2.get_yticklines()], color=colors[l])
 #plt.figlegend([line1, line2],['Prey trajectory','Predator trajectory'], loc = 'lower right')
 sm1 = plt.cm.ScalarMappable(cmap=cmap1)
 sm1.set_array([0.0,maxpreyharvest])
