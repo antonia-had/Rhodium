@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -5,7 +7,7 @@ from cycler import cycler
 from System_behavior_formulations.two_harvesters_two_policies_shared_info_threshold_simple import fish_game
 from fallback_bargaining import fallback_bargaining
 import ast
-plt.style.use('ggplot')
+import math
 
 # load data
 regret = np.loadtxt("sharedinfo_regret.csv", skiprows=1, delimiter=',')
@@ -36,19 +38,23 @@ solutions_decision_variables = [ast.literal_eval(decisionvariables.at[s,'vars'])
 
 colors = ['red', 'blue','green','yellow','orange','purple']
 
-cmap = plt.cm.get_cmap("plasma")
+cmap1 = plt.cm.get_cmap("plasma")
+cmap2 = plt.cm.get_cmap("plasma")
+
 
 nb_points = 100
-y_iso = [np.linspace(0, 300, nb_points)]
+tSteps = 100
+y_iso = np.linspace(0, 300, nb_points)
+
+a = 0.005 # rate at which the prey is available to the predator
+b = 0.5 # prey growth rate
+c = 0.5 # rate with which consumed prey is converted to predator abundance
+d = 0.1 # predator death rate
+h = 0.1 # handling time (time each predator needs to consume the caught prey)
+K = 2000 # prey carrying capacity given its environmental conditions
+m = 0.7 # predator interference parameter
 
 def isoclines(y):
-    a = 0.005 # rate at which the prey is available to the predator
-    b = 0.5 # prey growth rate
-    c = 0.5 # rate with which consumed prey is converted to predator abundance
-    d = 0.1 # predator death rate
-    h = 0.1 # handling time (time each predator needs to consume the caught prey)
-    K = 2000 # prey carrying capacity given its environmental conditions
-    m = 0.7 # predator interference parameter
     return ([(y**m*d)/(a*(c-h*d)),
              K*b/(2*b)-y**m/(2*a*h)+K*np.sqrt((a*h*b+y**m*b/K)**2-4*a**2*h*b*y/K)/(2*a*h*b)])
     
@@ -57,44 +63,60 @@ iso2= np.zeros([nb_points]) # x isocline
 iso1, iso2 = isoclines(y_iso)
 
 ncols = 3
-nrows = 2
+nrows = 4
 
 fig =  plt.figure(figsize=(18,9))
-for l in range(nrows*ncols):
-    ax = fig.add_subplot(nrows,ncols,l+1)
-    ax.plot(iso1,y_iso, c='gray')
-    ax.plot(iso2,y_iso, c='gray')
-    
-    for n in range(len(highprofitharv[0,:,:])): # Loop through initial conditions
-        ax.set_prop_cycle(cycler('color', [cmap(1.*highprofitharv[l,n,2][i]) for i in range(tSteps)]))
-        for i in range(tSteps):
-            line1 = ax.plot(highprofitharv[l,n,0][i:i+2], highprofitharv[l,n,1][i:i+2], linewidth=2, linestyle='--',label='Most robust in NPV')
-        ax.set_prop_cycle(cycler('color', [cmap(1.*robustharv[l,n,2][i]) for i in range(tSteps)]))
-        for i in range(tSteps):
-            line2 = ax.plot(robustharv[l,n,0][i:i+2], robustharv[l,n,1][i:i+2], linewidth=2, linestyle='-',label='Most robust in all criteria')
-#            ax.set_prop_cycle(cycler('color', [cmap(1.*noharv[ncols*k+l,n,2][i]) for i in range(tSteps)]))
-#            for i in range(tSteps):
-#                line3 = ax.plot(noharv[ncols*k+l,n,0][i:i+2], noharv[ncols*k+l,n,1][i:i+2], linewidth=2, linestyle='-',label='No harvest')
-        endpoint1 = ax.scatter(highprofitharv[l,n,0][100], highprofitharv[l,n,1][100], c='darkgoldenrod', s=20)
-        endpoint2 = ax.scatter(robustharv[l,n,0][100], robustharv[l,n,1][100], c='gold', s=20)
-#            endpoint3 = ax.scatter(noharv[ncols*k+l,n,0][100], noharv[ncols*k+l,n,1][100], c='black', s=20)
-        collapse_thres = ax.axvline(x=worlds[l][5]*0.5*0.2, linestyle=':', c='crimson')
-        overfishing_thres = ax.axvline(x=worlds[l][5]*0.5*0.5, linestyle=':', c='purple')
-    ax.set_xlabel("Prey")
-#        ax.set_ylim(0,305)
-#        ax.set_xlim(0,2500)
-    if l==0:
-        ax.set_ylabel("Predator")        
-#        if l==2:       
-#            ax.legend([endpoint1, endpoint2, pop_thres],['Most robust in NPV equilibrium point','Most robust in all criteria equilibrium point','Population threshold'], loc = 'lower right')
-sm = plt.cm.ScalarMappable(cmap=cmap)
-sm.set_array([0.0,1.0])
+maxpreyharvest=0
+maxpredatorharvest=0
+for l in range(len(solutions_to_highlight)):
+    ax1 = fig.add_subplot(nrows,ncols,l+1+int(math.floor(l/ncols))*ncols)
+    ax2 = fig.add_subplot(nrows,ncols,l+1+ncols+int(math.floor(l/ncols))*ncols)
+#    ax.plot(iso1,y_iso, c='gray')
+#    ax.plot(iso2,y_iso, c='gray')
+    systemseries = fish_game(solutions_decision_variables[l])
+    ax1.set_prop_cycle(cycler('color', [cmap1(0.0005*systemseries[6][i]) for i in range(tSteps)]))
+    for i in range(tSteps):
+        line1 = ax1.plot(range(tSteps)[i:i+2], systemseries[4][i:i+2], linewidth=1, linestyle='--')
+    ax2.set_prop_cycle(cycler('color', [cmap2(0.004*systemseries[7][i]) for i in range(tSteps)]))
+    for i in range(tSteps):
+        line2 = ax2.plot(range(tSteps)[i:i+2], systemseries[5][i:i+2], linewidth=1, linestyle='-')
+#    collapse_thres = ax.axhline(y=K*0.5*0.2, linestyle=':', c='crimson')
+#    overfishing_thres = ax.axhline(y=K*0.5*0.5, linestyle=':', c='purple')    
+    ax1.set_xlim(0,100)
+    ax2.set_xlim(0,100)
+    ax1.set_ylim(200,2000)
+    ax2.set_ylim(0,255)
+    if l%ncols==0:
+        ax1.set_ylabel("Prey population\ndensity", fontsize=10)
+        ax2.set_ylabel("Predator population\ndensity", fontsize=10)
+    ax1.set_title(solutions_names[l],fontsize=12)
+    ax2.set_title('NPVa: '+"{0:.2f}".format(systemseries[0])+' NPVb: '+"{0:.2f}".format(systemseries[1])+\
+                  ' Mean prey def.: '+"{0:.2f}".format(systemseries[2])+' Mean pred. def.: '+"{0:.2f}".format(systemseries[3]),
+                  fontsize=8)
+    ax1.set_xticks([x*20 for x in range(6)])
+    ax2.set_xticks([x*20 for x in range(6)])
+    ax1.set_xticklabels([])
+    ax2.set_xticklabels([])
+    if l+1+ncols+int(math.floor(l/ncols))*ncols>9:
+        ax2.set_xticklabels([str(x*20) for x in range(6)])
+        ax2.set_xlabel("Time")
+    if max(systemseries[6])>maxpreyharvest:
+        maxpreyharvest=max(systemseries[6])
+    if max(systemseries[7])>maxpredatorharvest:
+        maxpredatorharvest=max(systemseries[7])
+#plt.figlegend([line1, line2],['Prey trajectory','Predator trajectory'], loc = 'lower right')
+sm1 = plt.cm.ScalarMappable(cmap=cmap1)
+sm1.set_array([0.0,maxpreyharvest])
 fig.subplots_adjust(bottom = 0.2)
-cbar_ax = fig.add_axes([0.1, 0.06, 0.8, 0.06])
-cb = fig.colorbar(sm, cax=cbar_ax, orientation="horizontal")
-cb.ax.set_xlabel("Ratio of prey harvested")
+cbar_ax1 = fig.add_axes([0.1, 0.06, 0.25, 0.03])
+cb1 = fig.colorbar(sm1, cax=cbar_ax1, orientation="horizontal")
+cb1.ax.set_xlabel("Units of prey harvested")
+sm2 = plt.cm.ScalarMappable(cmap=cmap2)
+sm2.set_array([0.0,maxpredatorharvest])
+cbar_ax2 = fig.add_axes([0.4, 0.06, 0.3, 0.03])
+cb2 = fig.colorbar(sm2, cax=cbar_ax2, orientation="horizontal")
+cb2.ax.set_xlabel("Units of predator harvested")
 plt.show()
-plt.savefig("policy_trajectories.png")
-plt.savefig("policy_trajectories.svg")
+
 
 
