@@ -41,26 +41,7 @@ colors = ['red', 'blue','green','yellow','orange','purple']
 cmap1 = plt.cm.get_cmap("plasma")
 cmap2 = plt.cm.get_cmap("plasma")
 
-
-nb_points = 100
 tSteps = 100
-y_iso = np.linspace(0, 300, nb_points)
-
-a = 0.005 # rate at which the prey is available to the predator
-b = 0.5 # prey growth rate
-c = 0.5 # rate with which consumed prey is converted to predator abundance
-d = 0.1 # predator death rate
-h = 0.1 # handling time (time each predator needs to consume the caught prey)
-K = 2000 # prey carrying capacity given its environmental conditions
-m = 0.7 # predator interference parameter
-
-def isoclines(y):
-    return ([(y**m*d)/(a*(c-h*d)),
-             K*b/(2*b)-y**m/(2*a*h)+K*np.sqrt((a*h*b+y**m*b/K)**2-4*a**2*h*b*y/K)/(2*a*h*b)])
-    
-iso1= np.zeros([nb_points]) # y isocline
-iso2= np.zeros([nb_points]) # x isocline
-iso1, iso2 = isoclines(y_iso)
 
 ncols = 3
 nrows = 4
